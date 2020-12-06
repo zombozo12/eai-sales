@@ -28,8 +28,14 @@ Route::prefix('customer')->middleware(['auth:api'])->group(function(){
     Route::get('/delete/{customer_id}', 'API\CustomerController@delete')->name('customer.delete');
 });
 
-Route::prefix('transaction')->middleware(['auth:api'])->group(function(){
+Route::prefix('transaction')->group(function(){
     Route::get('/', 'API\TransactionController@getAll')->name('transaction.all');
     Route::get('/{id}', 'API\TransactionController@getByID')->name('transaction.byid');
-    Route::post('/create', 'API\TransactionController@store')->name('transaction.store');
+    Route::post('/create', 'API\TransactionController@store')->name('transaction.store')->middleware(['auth:api']);
+});
+
+Route::prefix('advertisement')->group(function(){
+    Route::get('/', 'API\AdvertisementController@index')->name('advertisement.all');
+    Route::get('/{id}', 'API\AdvertisementController@getByID')->name('advertisement.byid');
+    Route::post('/create', 'API\AdvertisementController@create')->name('advertisement.create');
 });

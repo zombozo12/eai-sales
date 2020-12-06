@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-
     // function login
     public function login(Request $request){
         // rules -> adalah sebuah aturan input yang dibuat untuk pengguna. rules menggunakan tipe data array.

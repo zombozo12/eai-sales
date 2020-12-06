@@ -11,19 +11,21 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
-
+    // proses pengecekan customer ada atau tidak
     private function isCustomerExists($customer_id){
         try{
             Customer::findOrFail($customer_id);
         }catch(ModelNotFoundException $ex){
             return false;
         }
-
         return true;
     }
 
+
+    // mengambil data customer yang sedang login. atau data customer milik diri sendiri
     public function getCurrent(){
         $customer = Customer::where('user_id', auth()->user()->id)->first();
+        // menampilkan data customer sesuai dengan user id-nya
         return response()->json([
             'status' => true,
             'customers' => $customer
@@ -46,38 +48,48 @@ class CustomerController extends Controller
         ]);
     }
 
+    // create atau store
     public function store(Request $request){
+        // validasi input mulai dari sini
+
+        // aturan validasi input
         $rules = [
             'name' => 'required|max:150',
             'birthday' => 'required|date_format:d-m-Y',
             'address' => 'required|max:200'
         ];
 
+        // error message ketika aturan tidak terpenuhi
         $message = [
             'name.required' => 'Nama tidak boleh kosong',
             'name.max' => 'Nama tiak boleh lebih dari :max karakter',
             'birthday.required' => 'Tanggal lahir tidak boleh kosong',
-            'birthday.date_format' => 'Format tanggal lahir tidak diketahui',
+            'birthday.date_format' => 'Format tanggal lahir tidak sesuai',
             'address.required' => 'Alamat tidak boleh kosong',
             'address.max' => 'Alamat tidak boleh lebih dari :max karakter'
         ];
 
+        // validator -> adalah sebuah sistem yang memvalidasi input2 dari pengguna
         $validator = Validator::make($request->all(), $rules, $message);
 
+        // jika ada validasi yang tidak terpenuhi, maka akan menampilkan error sesuai dengan message yang ada.
         if($validator->fails()){
             return response()->json([
                 'status' => false,
-                'errors' => $validator->errors()
+                'errors' => $validator->errors() // menampilkan errornya
             ]);
         }
+        // validasi input berakhir disini
 
+        // proses insert ke database dengan table Customer
         $customer = Customer::create([
             'user_id' => auth()->user()->id,
             'name' => $request->name,
-            'birthday' => Carbon::parse($request->birthday)->format('Y-m-d'),
+            'birthday' => Carbon::parse($request->birthday)->format('Y-m-d'), // format tanggal diubah ke year-month-day
             'address' => $request->address
         ]);
 
+        // jika proses insert gagal maka akan menampilkan error
         if (!$customer->save()){
             return response()->json([
                 'status' => false,
@@ -85,6 +97,7 @@ class CustomerController extends Controller
             ]);
         }
 
+        // jika proses insert berhasil maka akan menampilkan informasi
         return response()->json([
             'status' => true,
             'message' => 'Customer berhasil ditambah',
@@ -93,6 +106,7 @@ class CustomerController extends Controller
     }
 
     public function update($customer_id, Request $request){
+        // pengecekan data customer sesuai dengan id customer
         if(!$this->isCustomerExists($customer_id)){
             return response()->json([
                 'status' => false,
@@ -124,11 +138,14 @@ class CustomerController extends Controller
             ]);
         }
 
+        // proses update customer berdasarkan id customer
         $customer = Customer::find($customer_id);
+        // data customer di table, akan diubah sesuai apa yang diinput
         $customer->name = $request->name;
         $customer->birthday = Carbon::parse($request->birthday)->format('Y-m-d');
         $customer->address = $request->address;
 
+        // jika proses update gagal maka akan menampilkan error
         if (!$customer->save()){
             return response()->json([
                 'status' => false,
@@ -136,6 +153,7 @@ class CustomerController extends Controller
             ]);
         }
 
+        // jika proses update berhasil maka akan menampilkan informasi
         return response()->json([
             'status' => true,
             'message' => 'Customer berhasil diubah',
@@ -144,6 +162,7 @@ class CustomerController extends Controller
     }
 
      public function delete($customer_id){
+         // pengecekan data customer sesuai dengan id customer
          if(!$this->isCustomerExists($customer_id)){
              return response()->json([
                  'status' => false,
@@ -151,8 +170,10 @@ class CustomerController extends Controller
              ]);
          }
 
+         // proses delete customer sesuai dengan id customer
         $customer = Customer::find($customer_id);
 
+         // jika proses delete gagal maka akan menampilkan error
          if (!$customer->delete()){
              return response()->json([
                  'status' => false,
@@ -160,6 +181,7 @@ class CustomerController extends Controller
              ]);
          }
 
+         // jika proses delete berhasil maka akan menampilkan informasi
          return response()->json([
              'status' => true,
              'message' => 'Customer berhasil dihapus'
