@@ -71,9 +71,9 @@ class TransactionController extends Controller
         $customer = Customer::where('user_id', auth()->user()->id)->first();
 
         // Cek kalau data customer ada
-        if($this->isCustomerExists(auth())){
-
-        }
+        //if($this->isCustomerExists(auth())){
+	//
+        //}
 
         // Cek kalau barang_id, amount, atau total_price kurang dari 0 atau angka minus.
         if($request->barang_id < 0 OR $request->amount < 0){
@@ -104,7 +104,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Customer berhasil ditambah',
+            'message' => 'Transaksi berhasil ditambah',
             'transaction' => Transaction::find($transaction->id)
         ]);
     }
