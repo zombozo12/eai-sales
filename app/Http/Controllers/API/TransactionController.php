@@ -70,11 +70,6 @@ class TransactionController extends Controller
         // Customer, mengambil id dari akun yang sedang login ke aplikasi
         $customer = Customer::where('user_id', auth()->user()->id)->first();
 
-        // Cek kalau data customer ada
-        //if($this->isCustomerExists(auth())){
-	//
-        //}
-
         // Cek kalau barang_id, amount, atau total_price kurang dari 0 atau angka minus.
         if($request->barang_id < 0 OR $request->amount < 0){
             return response()->json([
@@ -83,9 +78,18 @@ class TransactionController extends Controller
             ]);
         }
 
+        $barang = $this->search($this->BASE_RESPONSE, 'id_barang', $request->barang_id);
+
+
+        if(!isset($barang[0])){
+            return response()->json([
+                'status' => false,
+                'message' => 'Data barang tidak ditemukan'
+            ]);
+        }
+
         // Menghitung total harga
-        $harga = 10000; // harga barang sesungguhnya belum ada dari API Warehouse, jadi di deklarasi harga = 10000
-        $total_price = $request->amount * $harga;
+        $total_price = $request->amount * $barang[0]['harga_barang'];
 
         $transaction = Transaction::create([
             'customer_id' => $customer->id,
